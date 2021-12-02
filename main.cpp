@@ -3,6 +3,11 @@
 
 using namespace std;
 
+template<class Type>
+struct nodeType{
+    Type info;
+    nodeType<Type> *link;
+};
 
 
 template<class Type>
@@ -39,7 +44,26 @@ private:
 };
 
 template<class Type>
-void stackType<Type>::initializeStack() {
+class linkedStackType: public StackADT<Type>{
+public:
+    const linkedStackType<Type>& operator=(const linkedStackType<Type>&);
+    bool isEmptyStack() const;
+    bool isFullStack() const;
+    void initializeStack();
+    void push(const Type&);
+    Type top() const;
+    void pop();
+    linkedStackType();
+    linkedStackType(const linkedStackType<Type>&);
+    ~linkedStackType();
+
+private:
+    nodeType<Type> *stackTop;
+    void copyStack(const linkedStackType<Type>&);
+};
+
+template<class Type>
+void stackType<Type>::initializeStack(){
     stackTop = 0;
 }
 template<class Type>
@@ -122,43 +146,174 @@ const stackType<Type> & stackType<Type>::operator=(const stackType<Type> &otherS
     return *this;
 }
 
+template<class Type>
+linkedStackType<Type>::linkedStackType() {
+    stackTop = nullptr;
+}
+template<class Type>
+bool linkedStackType<Type>::isEmptyStack() const{
+    return (stackTop == nullptr);
+}
+template<class Type>
+bool linkedStackType<Type>::isFullStack() const {
+    return false;
+}
+template<class Type>
+void linkedStackType<Type>::initializeStack() {
+    nodeType<Type> *temp;
+
+    while(stackTop != nullptr){
+        temp = stackTop;
+        stackTop = stackTop->link;
+        delete temp;
+    }
+}
+template<class Type>
+void linkedStackType<Type>::push(const Type &newElement) {
+    nodeType<Type> *newNode;
+    newNode = new nodeType<Type>;
+
+    newNode->info = newElement;
+    newNode->link = stackTop;
+    stackTop = newNode;
+}
+template<class Type>
+Type linkedStackType<Type>::top() const {
+
+    assert(stackTop != nullptr);
+    return stackTop->info;
+}
+template<class Type>
+void linkedStackType<Type>::pop() {
+    nodeType<Type> *temp;
+
+    if(stackTop != nullptr){
+        temp = stackTop;
+        stackTop = stackTop->link;
+        delete temp;
+    }
+}
+template<class Type>
+void linkedStackType<Type>::copyStack(const linkedStackType<Type> &otherStack) {
+    nodeType<Type> *newNode, *current, *last;
+    if(stackTop != nullptr){
+        initializeStack();
+    }
+    if(otherStack.stackTop == nullptr){
+        stackTop = nullptr;
+    }
+    else{
+        current = otherStack.stackTop;
+        stackTop = new nodeType<Type>;
+        stackTop->info = current->info;
+        stackTop->link = nullptr;
+
+        last = stackTop;
+        current = current->link;
+
+        while(current != nullptr){
+            newNode = new nodeType<Type>;
+
+            newNode->info = current->info;
+            newNode->link = nullptr;
+            last->link = newNode;
+            last = newNode;
+            current = current->link;
+        }
+    }
+}
+template<class Type>
+linkedStackType<Type>::linkedStackType(const linkedStackType<Type> &otherStack) {
+    stackTop = nullptr;
+    copyStack(otherStack);
+}
+template<class Type>
+linkedStackType<Type>::~linkedStackType<Type>() {
+    initializeStack();
+}
+template<class Type>
+const linkedStackType<Type>& linkedStackType<Type>::operator=(const linkedStackType<Type> &otherStack) {
+    if(this != &otherStack){
+        copyStack(otherStack);
+    }
+    return *this;
+}
+
+
 
 void testCopyConstructor(stackType<int> otherStack);
-
+void testCopy(linkedStackType<int> OStack);
 int main() {
-    stackType<int> stack(50);
-    stackType<int> copyStack(50);
-    stackType<int> dummyStack(100);
+    linkedStackType<int> stack;
+    linkedStackType<int> otherStack;
+    linkedStackType<int> newStack;
 
-    stack.initializeStack();
-    stack.push(85);
     stack.push(28);
-    stack.push(56);
-    copyStack = stack;
+    stack.push(94);
+    stack.push(37);
 
-    cout << "The elements of copyStack: ";
-    while (!copyStack.isEmptyStack()){
-        cout << copyStack.top() << " ";
-        copyStack.pop();
-    }
-    cout << endl;
-    copyStack = stack;
-    testCopyConstructor(stack);
+    newStack = stack;
+    cout << "After the assignment operator, newStack: " << endl;
 
-    if(!stack.isEmptyStack()){
-        cout << "The original stack is not empty." << endl
-        << "The top element of the original stack: "
-        << copyStack.top() << endl;
+    while(!newStack.isEmptyStack()){
+        cout << newStack.top() << endl;
+        newStack.pop();
     }
 
-    dummyStack = stack;
+    otherStack = stack;
+    cout << "Testing the copy constructor." << endl;
 
-    cout << "The elements of dummyStack: ";
-    while(!dummyStack.isEmptyStack()){
-        cout << dummyStack.top() << " ";
-        dummyStack.pop();
+    testCopy(otherStack);
+
+    cout << "After testing the copy constructor, otherStack: " << endl;
+
+    while(!otherStack.isEmptyStack()){
+        cout << otherStack.top() << endl;
+        otherStack.pop();
     }
-    cout << endl;
+
+
+
+
+
+
+
+
+
+
+//    stackType<int> stack(50);
+//    stackType<int> copyStack(50);
+//    stackType<int> dummyStack(100);
+//
+//    stack.initializeStack();
+//    stack.push(85);
+//    stack.push(28);
+//    stack.push(56);
+//    copyStack = stack;
+//
+//    cout << "The elements of copyStack: ";
+//    while (!copyStack.isEmptyStack()){
+//        cout << copyStack.top() << " ";
+//        copyStack.pop();
+//    }
+//    cout << endl;
+//    copyStack = stack;
+//    testCopyConstructor(stack);
+//
+//    if(!stack.isEmptyStack()){
+//        cout << "The original stack is not empty." << endl
+//        << "The top element of the original stack: "
+//        << copyStack.top() << endl;
+//    }
+//
+//    dummyStack = stack;
+//
+//    cout << "The elements of dummyStack: ";
+//    while(!dummyStack.isEmptyStack()){
+//        cout << dummyStack.top() << " ";
+//        dummyStack.pop();
+//    }
+//    cout << endl;
 
 
 
@@ -170,5 +325,14 @@ void testCopyConstructor(stackType<int> otherStack){
         cout << "otherStack is not empty." << endl
         << "The top element of otherStack: "
         << otherStack.top() << endl;
+    }
+}
+
+void testCopy(linkedStackType<int> OStack){
+    cout << "Stack in the function testCopy: " << endl;
+
+    while(!OStack.isEmptyStack()){
+        cout << OStack.top() << endl;
+        OStack.pop();
     }
 }
