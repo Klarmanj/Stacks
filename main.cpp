@@ -241,6 +241,52 @@ const linkedStackType<Type>& linkedStackType<Type>::operator=(const linkedStackT
     return *this;
 }
 
+void evaluateOpr(ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk){
+    double op1, op2;
+
+    if(stack.isEmptyStack()){
+        outF << "(Not enough operands)";
+        isExpOk = false;
+    }
+    else{
+        op2 = stack.top();
+        stack.pop();
+        if(stack.isEmptyStack()){
+            outF << "(Not enough operands)";
+            isExpOk = false;
+        }
+        else{
+            op1 = stack.top();
+            stack.pop();
+
+            switch (ch) {
+                case '+':
+                    stack.push(op1 + op2);
+                    break;
+                case '-':
+                    stack.push(op1 - op2);
+                    break;
+                case '*':
+                    stack.push(op1 * op2);
+                    break;
+                case '/':
+                    if(op2 != 0) {
+                        stack.push(op1 / op2);
+                    }
+                    else{
+                        outF << "(Division by 0)";
+                        isExpOk = false;
+                    }
+                    break;
+                default:
+                    outF << "(Illegal Operator)";
+                    isExpOk = false;
+            }
+        }
+    }
+}
+
+
 void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk){
     double num;
 
@@ -273,6 +319,7 @@ void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack,
         }
     }
 }
+
 
 
 
