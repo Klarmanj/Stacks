@@ -1,5 +1,7 @@
 #include <iostream>
 #include <assert.h>
+#include <iomanip>
+#include<fstream>
 
 using namespace std;
 
@@ -239,47 +241,91 @@ const linkedStackType<Type>& linkedStackType<Type>::operator=(const linkedStackT
     return *this;
 }
 
+void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk){
+    double num;
+
+    while(ch != '='){
+        switch (ch) {
+            case '#':
+                inF >> num;
+                outF << num << " ";
+                if(!stack.isFullStack()){
+                    stack.push(num);
+                }
+                else{
+                    cout << "Stack overflow. Program terminates!" <<endl;
+                    exit(0);
+                }
+                break;
+            default:
+                evaluateOpr(outF, stack, ch, isExpOk);
+        }
+        if(isExpOk){
+            inF >> ch;
+            outF << ch;
+
+            if(ch != '#'){
+                outF << " ";
+            }
+            else{
+                discardExp(inF, outF, ch);
+            }
+        }
+    }
+}
 
 
-void testCopyConstructor(stackType<int> otherStack);
-void testCopy(linkedStackType<int> OStack);
+
+//void testCopyConstructor(stackType<int> otherStack);
+//void testCopy(linkedStackType<int> OStack);
+
+void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk);
+void evaluateOpr(ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk);
+void discardExp(ifstream& inF, ofstream& outF, char& ch);
+void printResult(ofstream& outF, stackType<double> stack, bool isExpOk);
+
 int main() {
-    linkedStackType<int> stack;
-    linkedStackType<int> otherStack;
-    linkedStackType<int> newStack;
-
-    stack.push(28);
-    stack.push(94);
-    stack.push(37);
-
-    newStack = stack;
-    cout << "After the assignment operator, newStack: " << endl;
-
-    while(!newStack.isEmptyStack()){
-        cout << newStack.top() << endl;
-        newStack.pop();
-    }
-
-    otherStack = stack;
-    cout << "Testing the copy constructor." << endl;
-
-    testCopy(otherStack);
-
-    cout << "After testing the copy constructor, otherStack: " << endl;
-
-    while(!otherStack.isEmptyStack()){
-        cout << otherStack.top() << endl;
-        otherStack.pop();
-    }
 
 
 
 
+    //Commented out previous code to make testing easier for the calculator.
+//    linkedStackType<int> stack;
+//    linkedStackType<int> otherStack;
+//    linkedStackType<int> newStack;
+//
+//    stack.push(28);
+//    stack.push(94);
+//    stack.push(37);
+//
+//    newStack = stack;
+//    cout << "After the assignment operator, newStack: " << endl;
+//
+//    while(!newStack.isEmptyStack()){
+//        cout << newStack.top() << endl;
+//        newStack.pop();
+//    }
+//
+//    otherStack = stack;
+//    cout << "Testing the copy constructor." << endl;
+//
+//    testCopy(otherStack);
+//
+//    cout << "After testing the copy constructor, otherStack: " << endl;
+//
+//    while(!otherStack.isEmptyStack()){
+//        cout << otherStack.top() << endl;
+//        otherStack.pop();
+//    }
 
 
 
 
 
+
+
+
+//Commented out previous test code for stackType to make life easier when testing linkedStackType.
 
 //    stackType<int> stack(50);
 //    stackType<int> copyStack(50);
