@@ -285,8 +285,37 @@ void evaluateOpr(ofstream& outF, stackType<double>& stack, char& ch, bool& isExp
         }
     }
 }
+void discardExp(ifstream& inF, ofstream& outF, char& ch){
+    while(ch != '='){
+        inF.get(ch);
+        outF << ch;
+    }
+}
+void printResult(ofstream& outF, stackType<double>& stack, bool isExpOk){
+    double result;
 
 
+    if(isExpOk){
+        if(!stack.isEmptyStack()){
+            result = stack.top();
+            stack.pop();
+
+            if(stack.isEmptyStack()){
+                outF << result << endl;
+            }
+            else{
+                outF << "(Error: Too many operands)" << endl;
+            }
+        }
+        else{
+            outF << "(Error in the expression)" << endl;
+        }
+    }
+    else{
+        outF << "(Error in the expression)" << endl;
+    }
+    outF << "______________________________" << endl << endl;
+}
 void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk){
     double num;
 
@@ -306,19 +335,22 @@ void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack,
             default:
                 evaluateOpr(outF, stack, ch, isExpOk);
         }
-        if(isExpOk){
+        if(isExpOk) {
             inF >> ch;
             outF << ch;
 
-            if(ch != '#'){
+            if (ch != '#') {
                 outF << " ";
             }
-            else{
+        }
+        else {
                 discardExp(inF, outF, ch);
             }
-        }
     }
 }
+
+
+
 
 
 
@@ -326,12 +358,45 @@ void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack,
 //void testCopyConstructor(stackType<int> otherStack);
 //void testCopy(linkedStackType<int> OStack);
 
-void evaluateExpression(ifstream& inF, ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk);
-void evaluateOpr(ofstream& outF, stackType<double>& stack, char& ch, bool& isExpOk);
-void discardExp(ifstream& inF, ofstream& outF, char& ch);
-void printResult(ofstream& outF, stackType<double> stack, bool isExpOk);
-
 int main() {
+
+    bool expressionOk;
+    char ch;
+
+    stackType<double> stack(100);
+    ifstream infile;
+    ofstream outfile;
+
+    infile.open("RpnData.txt");
+    if(!infile){
+        cout << "Cannot open the input file. "
+        << "Program terminates!" << endl;
+        return 1;
+    }
+
+    outfile.open("RpnOutput.txt");
+
+    outfile << fixed << showpoint;
+    outfile << setprecision(2);
+
+    infile >> ch;
+    while(infile){
+        stack.initializeStack();
+        expressionOk = true;
+        outfile << ch;
+
+        evaluateExpression(infile, outfile, stack, ch, expressionOk);
+
+
+        printResult(outfile, stack, expressionOk);
+        infile >> ch;
+    }
+
+    infile.close();
+    outfile.close();
+
+
+
 
 
 
@@ -413,19 +478,21 @@ int main() {
     return 0;
 }
 
-void testCopyConstructor(stackType<int> otherStack){
-    if(!otherStack.isEmptyStack()){
-        cout << "otherStack is not empty." << endl
-        << "The top element of otherStack: "
-        << otherStack.top() << endl;
-    }
-}
 
-void testCopy(linkedStackType<int> OStack){
-    cout << "Stack in the function testCopy: " << endl;
-
-    while(!OStack.isEmptyStack()){
-        cout << OStack.top() << endl;
-        OStack.pop();
-    }
-}
+// Commented out to test Calculator portion.
+//void testCopyConstructor(stackType<int> otherStack){
+//    if(!otherStack.isEmptyStack()){
+//        cout << "otherStack is not empty." << endl
+//        << "The top element of otherStack: "
+//        << otherStack.top() << endl;
+//    }
+//}
+//
+//void testCopy(linkedStackType<int> OStack){
+//    cout << "Stack in the function testCopy: " << endl;
+//
+//    while(!OStack.isEmptyStack()){
+//        cout << OStack.top() << endl;
+//        OStack.pop();
+//    }
+//}
